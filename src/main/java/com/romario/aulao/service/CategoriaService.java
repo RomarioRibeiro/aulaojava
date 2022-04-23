@@ -11,8 +11,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.romario.aulao.domain.Categoria;
-import com.romario.aulao.domain.Cliente;
-import com.romario.aulao.domain.Categoria;
 import com.romario.aulao.dto.CategoriaDTO;
 import com.romario.aulao.repositories.CategoriaRepository;
 import com.romario.aulao.service.exception.DatalIntegrityExcepition;
@@ -25,6 +23,7 @@ public class CategoriaService {
 
 	public Categoria find(Integer id) {
 		Optional<Categoria> obj = repo.findById(id);
+		
 		return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado! Id: " + id + ",Tipo: " + Categoria.class.getName() ));
 	}
 

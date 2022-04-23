@@ -11,6 +11,7 @@ import com.romario.aulao.domain.Cliente;
 public interface ClienteRepository extends JpaRepository <Cliente , Integer>  {
 	@Query(value="select * from  cliente where id = ?",nativeQuery = true )
 	Cliente find(Integer id);
+	
 	@Transactional(readOnly = true)
 	Cliente findByEmail (String email);
 }

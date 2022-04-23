@@ -8,22 +8,30 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.romario.aulao.domain.Cidade;
 import com.romario.aulao.domain.Cliente;
 import com.romario.aulao.domain.Endereco;
+import com.romario.aulao.domain.enums.Perfil;
 import com.romario.aulao.domain.enums.TipoCliente;
 import com.romario.aulao.dto.ClienteDTO;
 import com.romario.aulao.dto.ClienteNewDTO;
 import com.romario.aulao.repositories.ClienteRepository;
 import com.romario.aulao.repositories.EnderecoRepository;
+import com.romario.aulao.security.UserSS;
+import com.romario.aulao.service.exception.AuthorizationException;
 import com.romario.aulao.service.exception.DatalIntegrityExcepition;
 import com.romario.aulao.service.exception.ObjectNotFoundException;
 
 @Service
 public class ClienteService {
+	
+	@Autowired
+	private BCryptPasswordEncoder pe;
+	
 	@Autowired
 	private ClienteRepository repo;
 	
@@ -31,6 +39,12 @@ public class ClienteService {
 	private EnderecoRepository enderecoRepository;
 
 	public Cliente find(Integer id) {
+		
+		UserSS user = UserService.authenticated();
+		if(user==null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
+			 throw new AuthorizationException("Acesso Negado !");
+		}
+		
 		Optional<Cliente> obj = repo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado! Id: " + id + ",Tipo: " + Cliente.class.getName() ));
 	}
@@ -72,7 +86,7 @@ public class ClienteService {
 	}
 	
 	public Cliente fromDTO(ClienteDTO objDto) {
-		return new  Cliente(objDto.getId(), objDto.getNome(), objDto.getEmail(),null , null);
+		return new  Cliente(objDto.getId(), objDto.getNome(), objDto.getEmail(),null , null, null);
 	}
 	
 	private void updateData(Cliente newobj ,Cliente obj) {
@@ -82,7 +96,7 @@ public class ClienteService {
 	
 	
 	public Cliente fromDTO(ClienteNewDTO objDto) {
-		Cliente cli = new Cliente(null, objDto.getNome(), objDto.getEmail(), objDto.getCpfOuCnpj(), TipoCliente.toEnum(objDto.getTipo()));
+		Cliente cli = new Cliente(null, objDto.getNome(), objDto.getEmail(), objDto.getCpfOuCnpj(), TipoCliente.toEnum(objDto.getTipo()),pe.encode(objDto.getSenha()));
 		Cidade cid = new Cidade(objDto.getCidadeId(), null, null);
 		Endereco end = new Endereco(null, objDto.getLogradouro(), objDto.getNumero(), objDto.getComplemento(), objDto.getBairro(), objDto.getCep(), cli, cid);
 		cli.getEndereco().add(end);

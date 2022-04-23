@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.romario.aulao.domain.Cliente;
 import com.romario.aulao.domain.Pedido;
-import com.romario.aulao.dto.ClienteNewDTO;
 import com.romario.aulao.service.PedidoService;
 
 @RestController
