@@ -5,9 +5,13 @@ import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.romario.aulao.domain.Cliente;
 import com.romario.aulao.domain.ItemPedido;
 import com.romario.aulao.domain.PagamentoComBoleto;
 import com.romario.aulao.domain.Pedido;
@@ -16,6 +20,8 @@ import com.romario.aulao.repositories.ItemPedidoRepository;
 import com.romario.aulao.repositories.PagamentoRepository;
 import com.romario.aulao.repositories.PedidoReposirory;
 import com.romario.aulao.repositories.ProdutoRepository;
+import com.romario.aulao.security.UserSS;
+import com.romario.aulao.service.exception.AuthorizationException;
 import com.romario.aulao.service.exception.ObjectNotFoundException;
 
 @Service
@@ -67,4 +73,16 @@ public class PedidoService {
 		return obj;
 	}
 	
+	public Page<Pedido> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+		UserSS user = UserService.authenticated();
+		if(user==null) {
+			throw new AuthorizationException("Acesso Negado!");
+		}		
+		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
+		Cliente cliente = clienteService.find(user.getId());
+		return repo.findByCliente(cliente, pageRequest);
+		
+	}
+		
 }
+	
