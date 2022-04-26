@@ -1,9 +1,8 @@
 package com.romario.aulao.service;
 
-import javax.mail.internet.MimeMessage;
-
 import org.springframework.mail.SimpleMailMessage;
 
+import com.romario.aulao.domain.Cliente;
 import com.romario.aulao.domain.Pedido;
 
 public interface EmailService {
@@ -12,6 +11,7 @@ public interface EmailService {
 	
 	void sendEmail(SimpleMailMessage msg);
 	
+	void sendNewPasswordEmail(Cliente cliente, String newPass);
 	
 	/*
 	 * void sendOrderConfirmationHtmlEmail(Pedido obj);
